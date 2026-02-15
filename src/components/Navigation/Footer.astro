@@ -1,0 +1,37 @@
+---
+import { Icon } from "astro-icon/components";
+import Socials from "../Socials.astro";
+import { MAIN_NAVIGATION } from "./Header.astro";
+---
+
+<footer class="w-full pb-4 mt-8">
+    <hr />
+    <div class="py-4 w-max mx-auto">
+        <Socials />
+    </div>
+    <nav class="mx-auto py-8 max-w-xl px-8 text-center">
+        <span class="inline-flex flex-wrap gap-2">
+            {
+                [
+                    ...MAIN_NAVIGATION,
+                    {
+                        label: "All",
+                        url: "",
+                    },
+                ].map((n) => (
+                    <>
+                        <a
+                            class="text-xs  dark:text-orange-300 text-orange-600"
+                            href={new URL(`${n.url}/rss.xml`, Astro.site)}
+                        >
+                            <>
+                                <span>{n.label}</span>
+                                <Icon class="inline size-4" name="ph:rss" />
+                            </>
+                        </a>
+                    </>
+                ))
+            }
+        </span>
+    </nav>
+</footer>

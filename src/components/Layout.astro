@@ -1,0 +1,65 @@
+---
+import { SITE } from "@/site.config";
+import "@/base.css";
+import Header from "@/components/Navigation/Header.astro";
+import Footer from "@/components/Navigation/Footer.astro";
+
+export interface Props {
+    title?: string;
+    author?: string;
+    description: string;
+    rssUrl?: string;
+}
+
+const FAVICON_URL = `${SITE.url}/favicon.svg`;
+
+const {
+    title = SITE.title,
+    author = SITE.author,
+    description,
+    rssUrl,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="canonical" href={canonicalURL} />
+        <meta name="generator" content={Astro.generator} />
+        <meta name="description" content={description} />
+        <!-- Auto discovery of feeds -->
+        {
+            rssUrl && (
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title={title}
+                    href={new URL(rssUrl, Astro.site)}
+                />
+            )
+        }
+        <!-- General Meta Tags -->
+        <title>{`${title} | ${SITE.title}`}</title>
+        <meta name="title" content={`${title} | ${SITE.title}`} />
+        <meta name="author" content={author} />
+        <link rel="sitemap" href="/sitemap-index.xml" />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:image" content={FAVICON_URL} />
+    </head>
+    <body class="layout-grid mx-auto">
+        <Header rssUrl={rssUrl} />
+        <main class="max-w-full border-x px-4 md:px-8 pb-12" id="main-content">
+            <slot />
+        </main>
+    </body>
+    <Footer />
+</html>

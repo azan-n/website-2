@@ -1,0 +1,56 @@
+---
+import Layout from "@/components/Layout.astro";
+import {
+    getProjectPosts,
+    PROJECTS_DESCRIPTION,
+} from "@/pages/projects/_projects";
+import PageHeader from "@/components/PageHeader.astro";
+import { Image } from "astro:assets";
+
+const posts = await getProjectPosts();
+---
+
+<Layout
+    title="Projects"
+    description={PROJECTS_DESCRIPTION}
+    rssUrl="/projects/rss.xml"
+>
+    <PageHeader heading="Projects" description={PROJECTS_DESCRIPTION} />
+    <ol class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        {
+            // TODO, keyboard navigation
+            posts.map((post) => (
+                <a
+                    class="no-underline group bg-elevation"
+                    id={post.id}
+                    href={`/projects/${post.id}`}
+                >
+                    <Image
+                        class="aspect-square w-full grayscale-100 group-focus:grayscale-25 group-hover:grayscale-25 object-cover m-0"
+                        src={post.data.image!}
+                        alt=""
+                    />
+                    <span class="block p-2">
+                        <span class="m-0 mt-4 leading-tight text-lg font-normal">
+                            {post.title}
+                            {!post.data.publish && (
+                                <span class="m-0 font-mono body-base uppercase opacity-80">
+                                    Draft
+                                </span>
+                            )}
+                        </span>
+                        {post.data.tags && (
+                            <span class="flex flex-wrap gap-2 mt-2">
+                                {post.data.tags.sort().map((t) => (
+                                    <span class="font-normal opacity-70">
+                                        {t}
+                                    </span>
+                                ))}
+                            </span>
+                        )}
+                    </span>
+                </a>
+            ))
+        }
+    </ol>
+</Layout>

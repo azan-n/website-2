@@ -1,0 +1,29 @@
+---
+import Layout from "@/components/Layout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { Image } from "astro:assets";
+import { photosCollection, PHOTOS_TITLE, PHOTOS_DESCRIPTION } from "./_photos";
+
+const sortedPosts = photosCollection.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<Layout title={PHOTOS_TITLE} description={PHOTOS_DESCRIPTION} rssUrl="/photos/rss.xml">
+    <PageHeader heading={PHOTOS_TITLE} description={PHOTOS_DESCRIPTION} />
+    <div class="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
+        {sortedPosts.map((post) => (
+            <a href={`/photos/${post.slug}`} class="group block btn border-0 p-0">
+                {post.thumbnail && (
+                    <Image
+                        src={post.thumbnail}
+                        alt={(post.title)}
+                        class="w-full aspect-square object-cover"
+                        loading="lazy"
+                    />
+                )}
+                <span class="block p-2 mt-2 tabular-nums font-mono body-base">
+                    {post.title}
+                </span>
+            </a>
+        ))}
+    </div>
+</Layout>

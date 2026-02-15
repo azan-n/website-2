@@ -1,0 +1,62 @@
+---
+import * as echarts from "echarts";
+
+interface Props {
+    data: Record<string, number>;
+    title?: string;
+}
+
+const { data, title } = Astro.props;
+
+const seriesData = Object.entries(data).map(([name, value]) => ({
+    name,
+    value,
+}));
+
+// In SSR mode the first container parameter is not required
+let chart = echarts.init(null, null, {
+    renderer: "svg", // must use SVG rendering mode
+    ssr: true, // enable SSR
+    width: 400, // need to specify height and width
+    height: 400,
+});
+
+chart.setOption({
+    color: [
+        "var(--primary-600)",
+        "var(--primary-700)",
+        "var(--primary-800)",
+        "var(--neutral-700)",
+        "var(--neutral-600)",
+    ],
+    title: {
+        text: title,
+        textStyle: {
+            color: "var(--color-text)",
+        },
+    },
+    legend: {
+        type: "plain",
+        textStyle: {
+            color: "var(--color-text)",
+        },
+    },
+    series: [
+        {
+            type: "pie",
+            data: seriesData,
+            label: {
+                color: "var(--color-text)",
+            },
+            animationType: "scale",
+        },
+    ],
+});
+
+const svg = chart.renderToSVGString().replace("<svg ", '<svg class="w-full" ');
+chart.dispose();
+---
+
+<div class="size-full">
+    <Fragment set:html={svg} />
+</div>

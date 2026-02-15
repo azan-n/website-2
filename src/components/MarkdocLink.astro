@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+
+interface Props {
+    collection: "projects" | "notes" | "library";
+    id: string;
+}
+
+const { collection, id } = Astro.props;
+
+const entry = await getCollection(collection, (e) => e.id.includes(id));
+
+if (!entry || entry.length !== 1) {
+    throw new Error(
+        `Broken internal link: entry "${id}" not found in "${collection}" collection.`,
+    );
+}
+
+const href = `/${collection}/${entry[0]?.id}`;
+---
+
+<a href={href}><slot /></a>

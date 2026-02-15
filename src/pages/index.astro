@@ -1,0 +1,22 @@
+---
+import Layout from "@/components/Layout.astro";
+import { Image } from "astro:assets";
+import i_Me_Music from "@/assets/me_music.jpg";
+import PieChart from "@/components/PieChart.astro";
+---
+
+<Layout title="About" description={"azan-n's website"}>
+    <article>
+        <!-- <PageHeader heading="" description="" /> -->
+        <figure class="full-bleed mt-4">
+            <figcaption class="text-xl font-light max-w-prose mb-4">
+                Hello! My name is Azan (a·zaan). I'm a self-taught musician, an
+                enjoyer of the outdoors, and a software engineer.
+            </figcaption>
+            <Image
+                src={i_Me_Music}
+                alt="Azan holding a classical guitar in a field covered with dandelions."
+            />
+        </figure>
+    </article>
+</Layout>

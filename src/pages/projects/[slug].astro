@@ -1,0 +1,50 @@
+---
+export interface Props {
+    id: string;
+}
+import { render } from "astro:content";
+import Layout from "@/components/Layout.astro";
+import Datetime from "@/components/Date/Datetime.astro";
+import ReadingTime from "@/components/Posts/ReadingTime.astro";
+import { getPostMetadata, getProjectPosts } from "@/pages/projects/_projects";
+import { getEntry } from "astro:content";
+
+export async function getStaticPaths() {
+    const posts = await getProjectPosts();
+
+    const postResult = posts.map((post) => ({
+        params: { slug: post.id },
+        props: { id: post.id },
+    }));
+
+    return [...postResult];
+}
+
+const { id } = Astro.props;
+const post = await getEntry("projects", id);
+
+if (!post) {
+    // Handle Error, for example:
+    throw new Error(`Could not find project ${id}.`);
+}
+
+const _m = getPostMetadata(post.filePath);
+
+if (!_m) {
+    throw Error(`Post metadata for ${post.filePath} was not parsed.`);
+}
+
+const { Content } = await render(post);
+---
+
+<Layout title={_m.title} description={post.data.description}>
+    <article id="article" role="article" class="post-grid">
+        <h1 class="full-bleed">{_m.title}</h1>
+        <p class="-mt-4">{post.data.description}</p>
+        <div class="flex flex-row items-center gap-4">
+            <Datetime datetime={_m.date} showTime={false} />
+            <ReadingTime renderedHtml={post.rendered?.html} />
+        </div>
+        <Content />
+    </article>
+</Layout>

@@ -1,0 +1,15 @@
+---
+import Layout from "@/components/Layout.astro";
+const desc =
+    "The requested page was not found. This could be because it was moved, deleted, or did not exist in the first place.";
+---
+
+<Layout title={"Page not found"} description={desc}>
+    <article>
+        <h1>Page not found</h1>
+        <p class="max-w-prose">
+            {desc}
+            <a href="/">Go back home</a>
+        </p>
+    </article>
+</Layout>

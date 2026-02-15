@@ -1,0 +1,15 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "strictNullChecks": true,
+    "allowJs": true, // required, and included with all Astro templates
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "jsxImportSource": "react"
+  }
+}

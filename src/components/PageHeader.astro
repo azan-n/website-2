@@ -1,0 +1,13 @@
+---
+interface Props {
+    heading: string;
+    description?: string;
+}
+
+const { heading, description } = Astro.props;
+---
+
+<section class="flex items-start justify-between">
+    <h1>{heading}</h1>
+</section>
+{description && <p class="-mt-4 body-base max-w-prose">{description}</p>}

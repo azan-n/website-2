@@ -1,0 +1,50 @@
+---
+import Layout from "@/components/Layout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { Image } from "astro:assets";
+import { photosCollection } from "./_photos";
+
+export async function getStaticPaths() {
+    return photosCollection.map((entry) => {
+        return {
+            params: { slug: entry.slug },
+            props: {
+                title: entry.title,
+                caption: entry.body || null,
+                images: entry.folderImages,
+            },
+        };
+    });
+}
+
+type Props = {
+    title: string;
+    caption: string | null;
+    images: ImageMetadata[];
+};
+
+const { title, caption, images } = Astro.props;
+---
+
+<Layout title={title} description={caption || title}>
+    <PageHeader heading={title} />
+    {
+        caption && (
+            <p class="body-base mb-4 max-w-prose whitespace-pre-line">
+                {caption}
+            </p>
+        )
+    }
+    <div class="grid grid-cols-1 gap-4 mt-8">
+        {
+            images.map((image) => (
+                <Image
+                    src={image}
+                    alt=""
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                />
+            ))
+        }
+    </div>
+</Layout>

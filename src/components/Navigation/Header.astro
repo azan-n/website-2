@@ -1,0 +1,77 @@
+---
+const url = Astro.url;
+import { Icon } from "astro-icon/components";
+import Logo from "../Logo.astro";
+
+function isActive(path: string): boolean {
+    const trailingSlash = /\/$/;
+    return url.pathname
+        .replace(trailingSlash, "")
+        .endsWith(path.replace(trailingSlash, ""));
+}
+
+export const MAIN_NAVIGATION = [
+    {
+        label: "Projects",
+        url: "/projects",
+        icon: "ph:projector-screen-chart-duotone",
+    },
+    {
+        label: "Library",
+        url: "/library",
+        icon: "ph:book-bookmark-duotone",
+    },
+    {
+        label: "Playlists",
+        url: "/playlists",
+        icon: "ph:cassette-tape",
+    },
+    {
+        label: "Notes",
+        url: "/notes",
+        icon: "ph:notebook",
+    },
+    {
+        label: "Photos",
+        url: "/photos",
+        icon: "ph:camera",
+    },
+];
+---
+
+<header class="w-full mb-8">
+    <a
+        id="skip-to-content"
+        class="absolute -top-full left-16 z-50 btn backdrop-blur-md transition-all focus:top-4"
+        href="#main-content">Skip to content</a
+    >
+    <nav
+        class="relative flex lg:flex-row flex-col w-full items-center justify-between md:px-8 py-4 gap-8"
+    >
+        <a
+            href="/"
+            aria-label="Home page"
+            class="animate-flip-once transition-transform ease-out border-0"
+        >
+            <Logo className="w-32" />
+        </a>
+
+        <div class="flex gap-4 flex-wrap justify-center">
+            {
+                MAIN_NAVIGATION.map((l) => (
+                    <a
+                        class="inline-flex justify-center items-center btn w-16 aspect-square"
+                        title={l.label}
+                        href={l.url}
+                        aria-disabled={isActive(l.url)}
+                    >
+                        <span class="flex flex-col gap-2 items-center">
+                            <Icon name={l.icon} />
+                        </span>
+                    </a>
+                ))
+            }
+        </div>
+    </nav>
+    <hr />
+</header>

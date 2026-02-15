@@ -1,0 +1,48 @@
+---
+export interface Props {
+    datetime: string | Date;
+    showIcon?: boolean;
+    showTime?: boolean;
+}
+
+import { LOCALE } from "@/site.config";
+import { Icon } from "astro-icon/components";
+
+const getFormattedDatetime = ({ datetime }: { datetime: string | Date }) => {
+    const myDatetime = new Date(datetime);
+
+    const date = myDatetime.toLocaleDateString(LOCALE, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+
+    const time = myDatetime.toLocaleTimeString(LOCALE, {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+
+    return { date: date, time: time };
+};
+
+const { datetime, showIcon = true, showTime = true } = Astro.props;
+
+const { date, time } = getFormattedDatetime({ datetime });
+---
+
+<div class="m-0 badge">
+    {showIcon && <Icon name="ph:calendar-blank-duotone" />}
+    <span class="sr-only">Posted on:</span>
+    <time class="m-0 text-sm">
+        <span>{date}</span>
+        {
+            showTime && (
+                <>
+                    <span aria-hidden="true"> |</span>
+                    <span class="sr-only">&nbsp;at&nbsp;</span>
+                    <span>{time}</span>
+                </>
+            )
+        }
+    </time>
+</div>

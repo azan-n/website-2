@@ -1,0 +1,122 @@
+---
+import Layout from "@/components/Layout.astro";
+import { Icon } from "astro-icon/components";
+import { getPlaylistLastUpdate, PLAYLISTS_DESCRIPTION } from "./_playlists";
+import PageHeader from "@/components/PageHeader.astro";
+import { getCollection } from "astro:content";
+
+const playlists = (await getCollection("playlists")).sort(
+    (a, b) =>
+        new Date(getPlaylistLastUpdate(b)).getTime() -
+        new Date(getPlaylistLastUpdate(a)).getTime(),
+);
+---
+
+<Layout
+    title="Playlists"
+    description={PLAYLISTS_DESCRIPTION}
+    rssUrl="/playlists/rss.xml"
+>
+    <!--  -->
+    <div id="player-container" class="fixed bottom-4 right-4 z-50">
+        <div id="player" class="overflow-hidden"></div>
+    </div>
+    <PageHeader heading="Playlists" description={PLAYLISTS_DESCRIPTION} />
+    <ol class="mt-8 flex flex-col gap-8">
+        {
+            playlists.map(
+                (p) =>
+                    p.data.playlist_items.items && (
+                        <li
+                            tabindex="0"
+                            class="grid grid-cols-1 lg:grid-cols-2 gap-4 group animate-in blur-in"
+                            id={p.data.id}
+                        >
+                            <span class="relative h-full flex flex-col ">
+                                <a
+                                    class="inline-flex gap-2 absolute top-0 p-1 bg-neutral-50/80"
+                                    href={`https://music.youtube.com/playlist?list=${p.data.id}`}
+                                >
+                                    <Icon
+                                        class="size-8"
+                                        name="simple-icons:youtube"
+                                    />
+                                </a>
+                                {p.data.snippet?.thumbnails?.maxres && (
+                                    <img
+                                        src={
+                                            p.data.snippet.thumbnails.maxres.url
+                                        }
+                                        alt=""
+                                        class="object-cover aspect-square size-full"
+                                    />
+                                )}
+
+                                <button
+                                    class="btn block p-4 border-0"
+                                    onclick={`playPlaylist('${p.data.id}')`}
+                                >
+                                    <Icon
+                                        class="size-6 mx-auto"
+                                        name="ph:play"
+                                    />
+                                </button>
+                            </span>
+                            <!-- text -->
+                            <span class="max-w-prose">
+                                <span class="text-xl">{p.data.snippet.title}</span>
+                                <br />
+                                {p.data.snippet.localized.description && (
+                                    <span class="text-sm">
+                                        {p.data.snippet.localized.description}
+                                    </span>
+                                )}
+                            </span>
+                        </li>
+                    ),
+            )
+        }
+    </ol>
+
+    <script>
+        // YouTube IFrame API singleton player
+        let player: any;
+        let isPlayerReady = false;
+
+        // Load YouTube IFrame API
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName("script")[0];
+        firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
+
+        // This function is called by the YouTube API when it's ready
+        // @ts-expect-error
+        window.onYouTubeIframeAPIReady = function () {
+            // @ts-expect-error
+            player = new YT.Player("player", {
+                height: "200",
+                width: "200",
+                playerVars: {
+                    playsinline: 1,
+                },
+                events: {
+                    onReady: onPlayerReady,
+                },
+            });
+        };
+
+        function onPlayerReady() {
+            isPlayerReady = true;
+        }
+
+        // @ts-expect-error
+        window.playPlaylist = function (playlistId: string) {
+            if (!isPlayerReady || !playlistId) return;
+            player.stopVideo();
+            player.loadPlaylist({
+                listType: "playlist",
+                list: playlistId,
+            });
+        };
+    </script>
+</Layout>

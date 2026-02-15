@@ -1,0 +1,32 @@
+---
+import Layout from "@/components/Layout.astro";
+import { getNotes } from "./_notes";
+
+const notes = await getNotes();
+---
+
+<Layout title="Notes" description="">
+    <h1>Notes</h1>
+    <section>
+        <ol class="grid md:grid-cols-2 gap-4">
+            {
+                notes.map((note) => {
+                    return (
+                        <li>
+                            <span class="flex flex-col gap-1">
+                                <a class="text-300" href={`/notes/${note.id}`}>
+                                    {note.title}
+                                </a>
+                                <span class="text-xs text-text-muted tabular-nums">
+                                    {Intl.DateTimeFormat(navigator.language, {
+                                        dateStyle: "full",
+                                    }).format(note.date)}
+                                </span>
+                            </span>
+                        </li>
+                    );
+                })
+            }
+        </ol>
+    </section>
+</Layout>

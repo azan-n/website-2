@@ -1,0 +1,8 @@
+---
+export interface Props {
+  className?: string;
+}
+const { className } = Astro.props;
+import SvgLogo from "@/icons/logo.svg";
+---
+<SvgLogo class:list={[`h-auto fill-foreground`, className]} />

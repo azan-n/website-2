@@ -1,0 +1,84 @@
+---
+import Layout from "@/components/Layout.astro";
+import type { InferEntrySchema } from "astro:content";
+import type { RenderedContent } from "astro:content";
+import {
+    getLibrary,
+    LIBRARY_DESCRIPTION,
+    getFilenameFromPath,
+} from "./_library";
+import PageHeader from "@/components/PageHeader.astro";
+
+export const LIBRARY_TITLE = "Library";
+type X = {
+    id: string;
+    body?: string;
+    collection: "library";
+    data: InferEntrySchema<"library">;
+    rendered?: RenderedContent;
+    filePath?: string;
+};
+
+const tree: Record<string, X[]> = {};
+const library = await getLibrary();
+
+// Populate tree grouped-by date
+library.forEach((p) => {
+    if (!p.data.complete) {
+        throw Error(`${p.id} has no completion date.`);
+    }
+
+    const monthYear = `${(p.data.complete.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${p.data.complete.getFullYear()}`;
+
+    if (!tree[monthYear]) {
+        tree[monthYear] = [];
+    }
+    tree[monthYear].push(p);
+});
+---
+
+<Layout
+    title={LIBRARY_TITLE}
+    description={LIBRARY_DESCRIPTION}
+    rssUrl="/library/rss.xml"
+>
+    <PageHeader heading={LIBRARY_TITLE} description={LIBRARY_DESCRIPTION} />
+    <section class="mt-8">
+        {
+            Object.entries(tree).map((e) => (
+                <section class="flex lg:flex-row flex-col mt-8">
+                    <div class="grow border-r">
+                        <h2
+                            id={e[0]}
+                            class="mt-0 mb-4 lg:sticky top-4 text-xl tabular-nums"
+                        >
+                            {e[0]}
+                        </h2>
+                    </div>
+                    <div class="basis-2/3">
+                        <ul class="space-y-4">
+                            {e[1].map((post) => (
+                                <li class="lg:ms-6 py-2">
+                                    <a href={new URL(post.data.source)}>
+                                        {getFilenameFromPath(post.filePath)}
+                                    </a>
+                                    <span class="block text-text-muted text-xs select-none">
+                                        {new URL(post.data.source).hostname}
+                                    </span>
+                                    {post.rendered && post.rendered.html && (
+                                        <div
+                                            class="max-w-prose"
+                                            set:html={post.rendered.html}
+                                        />
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </section>
+            ))
+        }
+    </section>
+</Layout>

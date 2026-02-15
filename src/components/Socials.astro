@@ -1,0 +1,22 @@
+---
+import { SOCIALS } from "@/site.config";
+import { Icon } from "astro-icon/components";
+---
+
+{
+    SOCIALS.length > 0 && (
+        <div class="flex flex-wrap gap-4">
+            {SOCIALS.map((social) => (
+                <a
+                    aria-label={social.linkTitle}
+                    class="btn m-0"
+                    href={social.href}
+                    title={social.linkTitle}
+                    target="_blank"
+                >
+                    <Icon name={social.icon} />
+                </a>
+            ))}
+        </div>
+    )
+}

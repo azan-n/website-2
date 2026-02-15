@@ -1,0 +1,24 @@
+---
+import { D2 } from "@terrastruct/d2";
+
+interface Props {
+    content: string;
+    sketch?: boolean;
+    theme?: number;
+}
+
+const { content, sketch = false, theme = 200 } = Astro.props;
+
+const d2 = new D2();
+let svg = "";
+
+try {
+    const result = await d2.compile(content, { sketch, themeID: theme });
+    svg = await d2.render(result.diagram, result.renderOptions);
+} catch (e) {
+    const error = e as Error;
+    svg = `<pre class="text-red-500">D2 Error: ${error.message}</pre>`;
+}
+---
+
+<figure class="d2-diagram" set:html={svg} />

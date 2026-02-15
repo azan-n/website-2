@@ -1,0 +1,171 @@
+---
+import Layout from "@/components/Layout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import { getCollection } from "astro:content";
+
+const playlist = await getCollection("synthfarm2025");
+
+// Helper function to fetch Bandcamp track/album ID
+async function getBandcampEmbed(url: string): Promise<string | null> {
+    try {
+        const response = await fetch(url);
+        const html = await response.text();
+        // Extract track ID from the page
+        const trackMatch = html.match(
+            /<meta property="twitter:player" content="([^\"]+)">/,
+        );
+        if (trackMatch && trackMatch[1]) {
+            return trackMatch[1];
+        } else {
+            console.error("html did not match player");
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching Bandcamp ID:", error);
+        return null;
+    }
+}
+
+// Helper function to generate embed URL based on platform
+async function getEmbedUrl(
+    url: string,
+): Promise<{ embedUrl: string; platform: string } | null> {
+    try {
+        const urlObj = new URL(url);
+
+        // YouTube detection
+        if (
+            urlObj.hostname.includes("youtube.com") ||
+            urlObj.hostname.includes("youtu.be")
+        ) {
+            let videoId = "";
+
+            if (urlObj.hostname.includes("youtu.be")) {
+                // Short URL format: https://youtu.be/VIDEO_ID
+                videoId = urlObj.pathname.slice(1);
+            } else if (urlObj.searchParams.has("v")) {
+                // Regular URL: https://www.youtube.com/watch?v=VIDEO_ID
+                videoId = urlObj.searchParams.get("v") || "";
+            } else if (urlObj.pathname.includes("/embed/")) {
+                // Already an embed URL
+                videoId = urlObj.pathname.split("/embed/")[1] || "";
+            }
+
+            if (videoId) {
+                return {
+                    embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
+                    platform: "youtube",
+                };
+            }
+        }
+
+        // SoundCloud detection
+        if (urlObj.hostname.includes("soundcloud.com")) {
+            return {
+                embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`,
+                platform: "soundcloud",
+            };
+        }
+
+        // Bandcamp detection
+        if (urlObj.hostname.includes("bandcamp.com")) {
+            const embedUrl = await getBandcampEmbed(url);
+            if (embedUrl) {
+                // Fetch the actual track/album ID from the Bandcamp page
+                return {
+                    embedUrl,
+                    platform: "bandcamp",
+                };
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error parsing URL:", error);
+        return null;
+    }
+}
+
+// Pre-fetch embed data for all tracks
+const embedDataPromises = playlist.map(async (t) => ({
+    track: t,
+    embedData: await getEmbedUrl(t.data.url),
+}));
+
+const tracksWithEmbeds = await Promise.all(embedDataPromises);
+
+// Group tracks by name
+const groupedTracks = tracksWithEmbeds.reduce(
+    (acc, item) => {
+        const name = item.track.data.name;
+        if (!acc[name]) {
+            acc[name] = [];
+        }
+        acc[name].push(item);
+        return acc;
+    },
+    {} as Record<string, typeof tracksWithEmbeds>,
+);
+---
+
+<Layout title="Synthfarm 2025" description={""}>
+    <PageHeader
+        heading="Synthfarm 2025"
+        description="A playlist of music curated by Synthfarm attendees."
+    />
+    <section class="mt-8">
+        {
+            Object.entries(groupedTracks)
+                .sort((a, b) => b[1].length - a[1].length)
+                .map(([name, items]) => (
+                    <ul class="mb-8 border-s grid grid-cols-card justify-items-center">
+                        <li class="justify-self-start ps-8 pt-4 font-mono uppercase">
+                            <h2 class="mb-2">{name}</h2>
+                        </li>
+                        {items.map(({ track, embedData }) => {
+                            return embedData ? (
+                                <li>
+                                    {embedData.platform === "youtube" && (
+                                        <iframe
+                                            width="300"
+                                            height="300"
+                                            src={embedData.embedUrl}
+                                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen
+                                        />
+                                    )}
+                                    {embedData.platform === "soundcloud" && (
+                                        <iframe
+                                            width="300"
+                                            height="300"
+                                            src={embedData.embedUrl}
+                                        />
+                                    )}
+                                    {embedData.platform === "bandcamp" && (
+                                        <iframe
+                                            src={embedData.embedUrl}
+                                            height="300"
+                                            width="300"
+                                        />
+                                    )}
+                                </li>
+                            ) : (
+                                <li>
+                                    <a
+                                        href={track.data.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {track.data.url}
+                                    </a>
+                                    <p class="text-text-muted">
+                                        (Platform not recognized for embedding)
+                                    </p>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                ))
+        }
+    </section>
+</Layout>

@@ -1,0 +1,13 @@
+---
+import { Icon } from "astro-icon/components";
+import { getReadingTime } from "@/pages/projects/_projects";
+export interface Props {
+    renderedHtml?: string | undefined;
+}
+const { renderedHtml } = Astro.props;
+---
+
+<div class="badge">
+    <Icon name="ph:timer-duotone" />
+    <span class="m-0 text-sm">{getReadingTime(renderedHtml ?? "")}</span>
+</div>

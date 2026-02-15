@@ -1,0 +1,45 @@
+---
+export interface Props {
+    id: string;
+}
+import { render } from "astro:content";
+import Layout from "@/components/Layout.astro";
+import { getEntry } from "astro:content";
+import { getCollection } from "astro:content";
+import Datetime from "@/components/Date/Datetime.astro";
+import ReadingTime from "@/components/Posts/ReadingTime.astro";
+import { getNotes } from "./_notes";
+
+export async function getStaticPaths() {
+    const notes = await getCollection("notes", (n) => n.data.publish);
+
+    const postResult = notes.map((note) => ({
+        params: { slug: note.id },
+        props: { id: note.id },
+    }));
+
+    return [...postResult];
+}
+
+// TODO, slug and id are the same here
+const { id } = Astro.props;
+const post = (await getNotes()).find((n) => n.id === id);
+
+if (!post) {
+    // Handle Error, for example:
+    throw new Error(`Could not find note ${id}.`);
+}
+
+const { Content, headings } = await render(post);
+---
+
+<Layout headings={headings} title={post.title} description="">
+    <article id="article" role="article" class="post-grid">
+        <h1 class="full-bleed">{post.title}</h1>
+        <div class="-mt-4 flex flex-row items-center gap-4">
+            <Datetime datetime={post.date} showTime={false} />
+            <ReadingTime renderedHtml={post.rendered?.html} />
+        </div>
+        <Content />
+    </article>
+</Layout>

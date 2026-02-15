@@ -1,0 +1,44 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+interface Props {
+    src: string;
+    alt: string;
+    caption: string;
+}
+
+const { src, alt, caption } = Astro.props;
+
+// Import all images from the Projects directory
+const images = import.meta.glob<{ default: ImageMetadata }>(
+    "/src/data/Projects/**/*.{png,jpg,jpeg,gif,webp}",
+    { eager: true },
+);
+
+// Resolve the relative path (e.g., "./202202021.png") to the actual image
+const filename = src.replace("./", "");
+let resolvedImage: ImageMetadata | undefined;
+
+for (const [path, module] of Object.entries(images)) {
+    if (path.endsWith(`/${filename}`)) {
+        resolvedImage = module.default;
+        break;
+    }
+}
+
+if (!resolvedImage) {
+    throw new Error(`Could not find image: ${src}`);
+}
+---
+
+<figure class="mb-8">
+    <Image src={resolvedImage} {alt} />
+    {
+        caption && (
+            <figcaption class="mt-2 mb-4 max-w-prose font-medium opacity-80">
+                {caption}
+            </figcaption>
+        )
+    }
+</figure>
