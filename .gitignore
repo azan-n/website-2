@@ -36,3 +36,5 @@ pnpm-debug.log*
 # Obsidian
 /src/data
 dist
+
+.wrangler
