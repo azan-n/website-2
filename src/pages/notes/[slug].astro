@@ -11,7 +11,7 @@ import ReadingTime from "@/components/Posts/ReadingTime.astro";
 import { getNotes } from "./_notes";
 
 export async function getStaticPaths() {
-    const notes = await getCollection("notes", (n) => n.data.publish);
+    const notes = await getNotes();
 
     const postResult = notes.map((note) => ({
         params: { slug: note.id },
@@ -21,7 +21,6 @@ export async function getStaticPaths() {
     return [...postResult];
 }
 
-// TODO, slug and id are the same here
 const { id } = Astro.props;
 const post = (await getNotes()).find((n) => n.id === id);
 
@@ -30,14 +29,14 @@ if (!post) {
     throw new Error(`Could not find note ${id}.`);
 }
 
-const { Content, headings } = await render(post);
+const { Content } = await render(post);
 ---
 
-<Layout headings={headings} title={post.title} description="">
+<Layout title={post.title} description="">
     <article id="article" role="article" class="post-grid">
         <h1 class="full-bleed">{post.title}</h1>
         <div class="-mt-4 flex flex-row items-center gap-4">
-            <Datetime datetime={post.date} showTime={false} />
+            <Datetime datetime={post.data.date} showTime={false} />
             <ReadingTime renderedHtml={post.rendered?.html} />
         </div>
         <Content />

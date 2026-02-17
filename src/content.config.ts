@@ -43,13 +43,6 @@ const ProjectsCollection = defineCollection({
   loader: glob({
     pattern: "**/*.mdoc",
     base: "./src/data/Projects",
-    generateId: (o) => {
-      // Entry is like "20220202-All the ambigrams in my notebooks/20220202-All the ambigrams in my notebooks.mdoc"
-      // Extract just the filename without extension
-      const filename =
-        o.entry.split("/").pop()?.replace(".mdoc", "") ?? o.entry;
-      return slug(filename);
-    },
   }),
   schema: ({ image }) =>
     z
@@ -84,6 +77,7 @@ const NotesCollection = defineCollection({
   }),
   schema: z.object({
     publish: z.boolean().optional(),
+    date: z.date(),
   }),
 });
 

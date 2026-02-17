@@ -14,9 +14,7 @@ const notes = await getNotes();
                     return (
                         <li>
                             <span class="flex flex-col gap-1">
-                                <a class="text-300" href={`/notes/${note.id}`}>
-                                    {note.title}
-                                </a>
+                                <a href={`/notes/${note.id}`}>{note.title}</a>
                                 <span class="text-xs text-text-muted tabular-nums">
                                     {Intl.DateTimeFormat(navigator.language, {
                                         dateStyle: "full",
