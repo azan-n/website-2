@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "deploy": "astro build && pnpm exec wrangler pages deploy",
-    "playlists:get": "node --experimental-transform-types ./lib/youtubePlaylists.ts"
+    "playlists:get": "node --experimental-transform-types ./lib/youtubePlaylists.ts",
+    "backup": "node --experimental-transform-types ./lib/backup.ts"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.6",
