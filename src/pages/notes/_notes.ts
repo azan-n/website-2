@@ -1,7 +1,7 @@
 import { getCollection } from "astro:content";
 
 // export const NOTES_DESCRIPTION = "Notes from things I have done.";
-export function getNoteMetadata(filePath?: string) {
+function getNoteMetadata(filePath?: string) {
   if (!filePath) {
     throw Error("Filepath empty for note.");
   }
